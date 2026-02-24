@@ -1,0 +1,27 @@
+--- itstool.in.orig	2025-10-01 12:48:05.000000000 +0000
++++ itstool.in	2025-10-01 12:51:05.000000000 +0000
+@@ -465,7 +465,10 @@
+ class Document (object):
+     def __init__ (self, filename, messages, load_dtd=False, keep_entities=False):
+         self._xml_err = ''
+-        libxml2.registerErrorHandler(xml_error_catcher, self)
++        # Handle both old and new libxml2 Python API
++        if hasattr(libxml2, 'registerErrorHandler'):
++            libxml2.registerErrorHandler(xml_error_catcher, self)
++        # New API handles errors differently, no registration needed
+         try:
+             ctxt = libxml2.createFileParserCtxt(filename)
+         except:
+@@ -556,8 +559,9 @@
+ 
+         self._clear_cache()
+ 
+-    def __del__ (self):
+-        self._doc.freeDoc()
++    def __del__(self):
++        if hasattr(self, '_doc') and self._doc is not None:
++            self._doc.freeDoc()
+ 
+     def _check_errors(self):
+         if self._xml_err:
+

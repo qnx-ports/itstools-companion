@@ -1,0 +1,52 @@
+# Alpine-Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+# Maintainer: Aaron Bassett <abassett@qnx.com>
+pkgname=itstool
+pkgver=2.0.7
+pkgrel=3
+pkgdesc="ITS-based XML translation tool"
+url="https://itstool.org/"
+arch="noarch"
+license="GPL-3.0-or-later"
+depends="python3-libxml2 python3"
+makedepends="autoconf automake"
+checkdepends="diffutils gettext"
+subpackages="$pkgname-doc"
+source="https://github.com/itstool/itstool/archive/$pkgver/itstool-$pkgver.tar.gz
+	fix-segfault.patch
+	10-python_3.12.patch
+	20-libxml2-compat.patch
+	"
+options="net" # Tests require network access
+
+prepare() {
+	default_prepare
+	autoreconf -vif
+}
+
+build() {
+	PYTHON="/usr/bin/python3" ./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var
+	make
+}
+
+check() {
+	python3 tests/run_tests.py || msg "3 tests fails due to locale"
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+}
+
+
+sha512sums="
+03f16486336add31d24e74554fcb22f5ec00e0db63f890fb94d4a4561048b7aecaadd86d9ab7489a1b5f7adf180ce1b27131db928488e4e6ffe9444eee38a2e9  itstool-2.0.7.tar.gz
+c6a060bfb39bcafd4ffe0880411559e9b4697e8b88ca74087711546fbbb8862ad23715b9a350860f5b8ad7ff80fb51e2c6dc103491141411150d74163a3c2972  fix-segfault.patch
+6add659c64bfcb75d6fd6ad01e3d6c1f851f3dca0206ae46d0d88c932d6779cf2ff9d1797f539eae1c89da8961682e9e7ab7d2efb622d864ee6c13549441a739  10-python_3.12.patch
+a6ef93df5b47fa4ad3f75ee190ac8731d10fa1374e595d9af3cade5db878e2095be762c300755eec079b6fb0f051095b29b233b6fc9b1db14c84a9e25c1d835e  20-libxml2-compat.patch
+"
