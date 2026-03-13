@@ -2,7 +2,7 @@
 # Maintainer: Aaron Bassett <abassett@qnx.com>
 pkgname=itstool
 pkgver=2.0.7
-pkgrel=3
+pkgrel=${pkgrel:-0}
 pkgdesc="ITS-based XML translation tool"
 url="https://itstool.org/"
 arch="noarch"
@@ -44,6 +44,7 @@ package() {
 }
 
 
+options="$options ${DISABLE_CHECK:+!check}"
 sha512sums="
 03f16486336add31d24e74554fcb22f5ec00e0db63f890fb94d4a4561048b7aecaadd86d9ab7489a1b5f7adf180ce1b27131db928488e4e6ffe9444eee38a2e9  itstool-2.0.7.tar.gz
 c6a060bfb39bcafd4ffe0880411559e9b4697e8b88ca74087711546fbbb8862ad23715b9a350860f5b8ad7ff80fb51e2c6dc103491141411150d74163a3c2972  fix-segfault.patch
